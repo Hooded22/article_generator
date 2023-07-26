@@ -1,0 +1,4 @@
+export enum CHAPTER_STATUS {
+  UNFINISHED = 0,
+  FINISHED = 1,
+}

@@ -19,6 +19,7 @@ model Article {
 
 model Chapter {
   id        Int     @id @default(autoincrement())
+  title     String
   content   String  @default("")
   status    Int     @default(0)
   articleId Int
