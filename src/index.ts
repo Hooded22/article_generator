@@ -2,6 +2,7 @@ import { GPTConnector } from "./GPTConnector";
 import * as dotenv from "dotenv";
 import { ArticleController } from "./article/controller";
 import prisma from "../prisma/client";
+import { ChaptersController } from "./chapters/controller";
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ dotenv.config();
     prisma.article,
     prisma.chapter
   );
+  const chaptersController = new ChaptersController(prisma.chapter);
 
   try {
     //First step - generate article with table of content
@@ -22,13 +24,22 @@ dotenv.config();
       article.id,
       chaptersGeneratedByGPT
     );
+    console.info("Article added");
 
     //Second step - for each chapter generate content
+    const unfinishedChapters = await chaptersController.getUnfinishedChapters(
+      article.id
+    );
     const chapterData = await gptConnector.generateChapterContentAndSummary({
-      chapterTitle: chaptersGeneratedByGPT[0],
+      chapterTitle: unfinishedChapters[0].title,
       articleTitle: userInput,
       previousChaptersSummary: [],
     });
+    await chaptersController.addChapterContentAndSummary(
+      unfinishedChapters[0].id,
+      chapterData.content,
+      chapterData.summary
+    );
 
     console.log("Success!", chapterData);
   } catch (error) {

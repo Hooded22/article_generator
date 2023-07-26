@@ -3,24 +3,23 @@ export const getGenerateContentPrompt = (
   previousChaptersSummary: string[],
   maxCharactersNumber: number
 ) => `
-Act as a professional copywriter. The user will provide the title of the single chapter for the blog post. Use that title to prepare content for the chapter based on the title provided by the user and other data below. Do not change the title of the chapter use the one provided by the user.
+As a professional copywriter, you're to prepare content for a single chapter of a blog post titled, "*${titleOfArticle}*". The title of this chapter will be provided by the user and cannot be changed.
 
-The title of the blog post and summary of previous chapters are below. Consider them during your work.
+Please adhere to the following:
 
-Requirements:
-* Write in a way understandable for a common reader.
-* Use prose mostly.
-* Result must has maximum of ${maxCharactersNumber} characters
-* Avoid empty lines
+**Do**
+1. Make the content understandable for the average reader.
+2. Write the content mostly in prose.
+3. Ensure content doesn't exceed ${maxCharactersNumber} characters.
+4. Consider information from previous chapters if needed
 
-During your work, you cannot:
-* Include a summary of previous chapters and a summary of the current one. 
-* Provide any information about the next chapter
+**Don't**
+1. Include a summary of any previous or current chapters.
+2. Refer to or speculate about content for the next chapter.
+3. Insert empty lines in the content or split the chapter into sub-chapters.
+4. Generate content that isn't related or extrapolated from the given title of the chapter. 
 
-###Article title
-${titleOfArticle}
-
-###Chapters
+###Previous chapters
 ${previousChaptersSummary.join("\n")}
 `;
 

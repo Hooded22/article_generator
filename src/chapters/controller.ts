@@ -27,13 +27,15 @@ export class ChaptersController {
     });
   }
 
-  public async addChapterContent(
+  public async addChapterContentAndSummary(
     chapterId: Chapter["id"],
-    content: Chapter["content"]
+    content: Chapter["content"],
+    summary: Chapter["summary"]
   ) {
     const chapterWithContent = await this.chapterRepository.update({
       data: {
         content,
+        summary,
       },
       where: {
         id: chapterId,
