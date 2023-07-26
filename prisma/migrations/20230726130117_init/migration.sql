@@ -1,0 +1,15 @@
+-- CreateTable
+CREATE TABLE "Article" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "title" TEXT NOT NULL,
+    "status" INTEGER NOT NULL DEFAULT 0
+);
+
+-- CreateTable
+CREATE TABLE "Chapter" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "content" TEXT NOT NULL DEFAULT '',
+    "status" INTEGER NOT NULL DEFAULT 0,
+    "articleId" INTEGER NOT NULL,
+    CONSTRAINT "Chapter_articleId_fkey" FOREIGN KEY ("articleId") REFERENCES "Article" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
