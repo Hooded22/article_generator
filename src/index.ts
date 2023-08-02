@@ -37,17 +37,54 @@ export async function finishUnfinishedArticle() {
     prisma.article,
     prisma.chapter
   );
-
+  const chaptersController = new ChaptersController(prisma.chapter);
   const userInterface = new UserInterface();
+  const gptConnector = new GPTConnector();
 
   try {
     const unfishedArticles = await articleController.getUnfinishedArticles();
-    const articleSelectedByUser = await userInterface.selectArticle(
+    const articleSelectedByUserID = await userInterface.selectArticle(
       "Slect article to finish: ",
       unfishedArticles
     );
 
-    console.log("Article to finish by GPT: ", articleSelectedByUser);
+    console.log("Article to finish by GPT: ", articleSelectedByUserID);
+    const articleData = await articleController.getArticleById(
+      articleSelectedByUserID
+    );
+    //TODO: Extract code below to another function
+    const unfinishedChapters = await chaptersController.getUnfinishedChapters(
+      articleSelectedByUserID
+    );
+    const articleChaptersSummary =
+      await chaptersController.getChaptersSummaryByArticleId(
+        articleSelectedByUserID
+      );
+    const previousChaptersSummary = [
+      ...articleChaptersSummary.map((item) => item.summary),
+    ];
+
+    for (let i = 0; i < unfinishedChapters.length; i++) {
+      const unfinishedChapter = unfinishedChapters[i];
+      const chapterData = await gptConnector.generateChapterContentAndSummary({
+        chapterTitle: unfinishedChapter.title,
+        articleTitle: articleData.title,
+        previousChaptersSummary: previousChaptersSummary,
+      });
+
+      previousChaptersSummary.push(chapterData.summary);
+
+      await chaptersController.addChapterContentAndSummary(
+        unfinishedChapter.id,
+        chapterData.content,
+        chapterData.summary
+      );
+      console.info(`Chapter (${i + 1} / ${unfinishedChapters.length})`);
+    }
+
+    await articleController.finishArticle(articleSelectedByUserID);
+
+    console.log("Success!");
     return;
   } catch (error) {
     console.error("ERROR: ", error);
@@ -72,19 +109,27 @@ export async function createNewArticleBasedOnUserInput(userInput: string) {
       chaptersGeneratedByGPT
     );
     console.info("Article added");
-
+    //TODO: Extract code below to another function
     //Second step - for each chapter generate content
     const unfinishedChapters = await chaptersController.getUnfinishedChapters(
       article.id
     );
+    const articleChaptersSummary =
+      await chaptersController.getChaptersSummaryByArticleId(article.id);
+    const previousChaptersSummary = [
+      ...articleChaptersSummary.map((item) => item.summary),
+    ];
 
     for (let i = 0; i < unfinishedChapters.length; i++) {
       const unfinishedChapter = unfinishedChapters[i];
       const chapterData = await gptConnector.generateChapterContentAndSummary({
         chapterTitle: unfinishedChapter.title,
         articleTitle: userInput,
-        previousChaptersSummary: [],
+        previousChaptersSummary: previousChaptersSummary,
       });
+
+      previousChaptersSummary.push(chapterData.summary);
+
       await chaptersController.addChapterContentAndSummary(
         unfinishedChapter.id,
         chapterData.content,

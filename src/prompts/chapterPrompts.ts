@@ -3,7 +3,7 @@ export const getGenerateContentPrompt = (
   previousChaptersSummary: string[],
   maxCharactersNumber: number
 ) => `
-As a professional copywriter, you're to prepare content for a single chapter of a blog post titled, "*${titleOfArticle}*". The title of this chapter will be provided by the user and cannot be changed.
+As a professional copywriter, you're to prepare content for a single chapter of a blog post titled, "${titleOfArticle}". Title of a chapter will be provided by user and cannot be changed.
 
 Please adhere to the following:
 
@@ -11,7 +11,8 @@ Please adhere to the following:
 1. Make the content understandable for the average reader.
 2. Write the content mostly in prose.
 3. Ensure content doesn't exceed ${maxCharactersNumber} characters.
-4. Consider information from previous chapters if needed
+4. Consider information from previous chapters if needed but do not copy previous chapters.
+5. Provide content on chapter title provided by user
 
 **Don't**
 1. Include a summary of any previous or current chapters.

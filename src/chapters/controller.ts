@@ -46,4 +46,15 @@ export class ChaptersController {
 
     return chapterWithContent;
   }
+
+  public async getChaptersSummaryByArticleId(articleID: Article["id"]) {
+    return this.chapterRepository.findMany({
+      where: {
+        articleId: articleID,
+      },
+      select: {
+        summary: true,
+      },
+    });
+  }
 }

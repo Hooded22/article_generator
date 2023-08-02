@@ -13,11 +13,15 @@ export class UserInterface {
         },
         { name: "2. Create new article ", value: MENU_ACTIONS.CREATE_NEW },
         {
-          name: "3. Delete unfinished article ",
+          name: "3. Display created articles ",
+          value: MENU_ACTIONS.SEE_ARTICLES,
+        },
+        {
+          name: "4. Delete unfinished article ",
           value: MENU_ACTIONS.DELETE_UNFINISHED,
         },
         {
-          name: "4. Exit ",
+          name: "5. Exit ",
           value: MENU_ACTIONS.EXIT,
         },
       ],

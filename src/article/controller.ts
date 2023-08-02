@@ -58,4 +58,18 @@ export class ArticleController {
       },
     });
   }
+
+  public async getArticleById(id: Article["id"]) {
+    const data = await this.articleRepository.findFirst({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!data) {
+      throw new Error("Article not found");
+    }
+
+    return data;
+  }
 }
