@@ -1,4 +1,4 @@
-export enum CHAPTER_STATUS {
+export enum ARTICLE_STATUS {
   UNFINISHED = 0,
   FINISHED = 10,
 }

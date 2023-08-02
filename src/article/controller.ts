@@ -1,5 +1,6 @@
 import { Article, PrismaClient } from "@prisma/client";
 import prisma from "../../prisma/client";
+import { ARTICLE_STATUS } from "./types";
 
 export class ArticleController {
   articleRepository;
@@ -10,6 +11,17 @@ export class ArticleController {
   ) {
     this.articleRepository = articleRepository;
     this.chapterRepository = chapterRepository;
+  }
+
+  private async changeArticleStatus(id: Article["id"], status: ARTICLE_STATUS) {
+    return this.articleRepository.update({
+      data: {
+        status,
+      },
+      where: {
+        id,
+      },
+    });
   }
 
   public async createNewArticle(title: Article["title"]) {
@@ -33,5 +45,17 @@ export class ArticleController {
     });
 
     return prisma.$transaction(inserts);
+  }
+
+  public async finishArticle(id: Article["id"]) {
+    return this.changeArticleStatus(id, ARTICLE_STATUS.FINISHED);
+  }
+
+  public async getUnfinishedArticles() {
+    return this.articleRepository.findMany({
+      where: {
+        status: ARTICLE_STATUS.UNFINISHED,
+      },
+    });
   }
 }

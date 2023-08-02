@@ -109,7 +109,7 @@ export class GPTConnector {
         max_tokens: 12000,
       }
     );
-    
+
     console.info("Chapter content generated");
 
     const chapterSummary = await this.summaryChapter(chapterContent);

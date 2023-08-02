@@ -17,7 +17,8 @@ Please adhere to the following:
 1. Include a summary of any previous or current chapters.
 2. Refer to or speculate about content for the next chapter.
 3. Insert empty lines in the content or split the chapter into sub-chapters.
-4. Generate content that isn't related or extrapolated from the given title of the chapter. 
+4. Generate content that isn't related or extrapolated from the given title of the chapter.
+5. Add any prefix with chapter number like 'Chapter 1: ' or 'Chapter: ' or even '1. ' 
 
 ###Previous chapters
 ${previousChaptersSummary.join("\n")}

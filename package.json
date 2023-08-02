@@ -8,6 +8,7 @@
     "test": ""
   },
   "dependencies": {
+    "@inquirer/prompts": "^3.0.0",
     "@prisma/client": "5.0.0",
     "axios": "^1.4.0",
     "dotenv": "^16.3.1",
