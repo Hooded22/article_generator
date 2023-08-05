@@ -1,6 +1,8 @@
 import { Article, PrismaClient } from "@prisma/client";
 import prisma from "../../prisma/client";
 import { ARTICLE_STATUS } from "./types";
+import { ChaptersController } from "../chapters/controller";
+import { GPTConnector } from "../GPTConnector";
 
 export class ArticleController {
   articleRepository;
@@ -64,6 +66,9 @@ export class ArticleController {
       where: {
         id: id,
       },
+      include: {
+        chapters: true,
+      },
     });
 
     if (!data) {
@@ -71,5 +76,47 @@ export class ArticleController {
     }
 
     return data;
+  }
+
+  public async createContentForArticle(articleID: Article["id"]) {
+    const chaptersController = new ChaptersController(this.chapterRepository);
+    const gptConnector = new GPTConnector();
+    const articleData = await this.getArticleById(articleID);
+
+    const unfinishedChapters = await chaptersController.getUnfinishedChapters(
+      articleID
+    );
+    const articleChaptersSummary =
+      await chaptersController.getChaptersSummaryByArticleId(articleID);
+
+    const previousChaptersSummary = [
+      ...articleChaptersSummary.map((item) => item.summary),
+    ];
+
+    for (let i = 0; i < unfinishedChapters.length; i++) {
+      const chapterNumber =
+        articleData.chapters.length - (unfinishedChapters.length - i) + 1;
+
+      console.info(
+        `Chapter (${chapterNumber} / ${articleData.chapters.length})`
+      );
+
+      const unfinishedChapter = unfinishedChapters[i];
+      const chapterData = await gptConnector.generateChapterContentAndSummary({
+        chapterTitle: unfinishedChapter.title,
+        articleTitle: articleData.title,
+        previousChaptersSummary: previousChaptersSummary,
+      });
+
+      previousChaptersSummary.push(chapterData.summary);
+
+      await chaptersController.addChapterContentAndSummary(
+        unfinishedChapter.id,
+        chapterData.content,
+        chapterData.summary
+      );
+    }
+
+    await this.finishArticle(articleID);
   }
 }

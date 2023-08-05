@@ -60,13 +60,14 @@ export class GPTConnector {
   }
 
   public async generateChaptersForArticle(
-    articleSubject: string
+    articleSubject: string,
+    chaptersNumber: number
   ): Promise<string[]> {
     const gptResponse = await this.gptRequest(
       [
         {
           role: "system",
-          content: createChaptersPrompt,
+          content: createChaptersPrompt(chaptersNumber),
         },
         {
           role: "user",

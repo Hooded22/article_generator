@@ -1,5 +1,5 @@
-export const createChaptersPrompt = `
-Act as blogger assistant. Generate 5 chapters for a blog post based on the blog post's title provided by the user. Titles should be no longer than 2 sentences. The result is returned in JSON Array as an array of strings separated by ','. Return JSON array and nothing more.
+export const createChaptersPrompt = (chaptersNumber: number) => `
+Act as blogger assistant. Generate ${chaptersNumber} chapters for a blog post based on the blog post's title provided by the user. Titles should be no longer than 2 sentences. The result is returned in JSON Array as an array of strings separated by ','. Return JSON array and nothing more.
 
 ###Example
 User: How pizza has been created

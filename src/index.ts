@@ -2,11 +2,12 @@ import { GPTConnector } from "./GPTConnector";
 import * as dotenv from "dotenv";
 import { ArticleController } from "./article/controller";
 import prisma from "../prisma/client";
-import { ChaptersController } from "./chapters/controller";
 import { UserInterface } from "./UserInterface";
 import { MENU_ACTIONS } from "./UserInterface/types";
 
 dotenv.config();
+
+const CHAPTERS_NUMBER = 5;
 
 (async () => {
   const userInterface = new UserInterface();
@@ -37,9 +38,7 @@ export async function finishUnfinishedArticle() {
     prisma.article,
     prisma.chapter
   );
-  const chaptersController = new ChaptersController(prisma.chapter);
   const userInterface = new UserInterface();
-  const gptConnector = new GPTConnector();
 
   try {
     const unfishedArticles = await articleController.getUnfinishedArticles();
@@ -49,40 +48,7 @@ export async function finishUnfinishedArticle() {
     );
 
     console.log("Article to finish by GPT: ", articleSelectedByUserID);
-    const articleData = await articleController.getArticleById(
-      articleSelectedByUserID
-    );
-    //TODO: Extract code below to another function
-    const unfinishedChapters = await chaptersController.getUnfinishedChapters(
-      articleSelectedByUserID
-    );
-    const articleChaptersSummary =
-      await chaptersController.getChaptersSummaryByArticleId(
-        articleSelectedByUserID
-      );
-    const previousChaptersSummary = [
-      ...articleChaptersSummary.map((item) => item.summary),
-    ];
-
-    for (let i = 0; i < unfinishedChapters.length; i++) {
-      const unfinishedChapter = unfinishedChapters[i];
-      const chapterData = await gptConnector.generateChapterContentAndSummary({
-        chapterTitle: unfinishedChapter.title,
-        articleTitle: articleData.title,
-        previousChaptersSummary: previousChaptersSummary,
-      });
-
-      previousChaptersSummary.push(chapterData.summary);
-
-      await chaptersController.addChapterContentAndSummary(
-        unfinishedChapter.id,
-        chapterData.content,
-        chapterData.summary
-      );
-      console.info(`Chapter (${i + 1} / ${unfinishedChapters.length})`);
-    }
-
-    await articleController.finishArticle(articleSelectedByUserID);
+    await articleController.createContentForArticle(articleSelectedByUserID);
 
     console.log("Success!");
     return;
@@ -97,48 +63,22 @@ export async function createNewArticleBasedOnUserInput(userInput: string) {
     prisma.article,
     prisma.chapter
   );
-  const chaptersController = new ChaptersController(prisma.chapter);
 
   try {
     //First step - generate article with table of content
     const article = await articleController.createNewArticle(userInput);
     const chaptersGeneratedByGPT =
-      await gptConnector.generateChaptersForArticle(userInput);
+      await gptConnector.generateChaptersForArticle(userInput, CHAPTERS_NUMBER);
     await articleController.addTableOfContentToArticle(
       article.id,
       chaptersGeneratedByGPT
     );
-    console.info("Article added");
-    //TODO: Extract code below to another function
-    //Second step - for each chapter generate content
-    const unfinishedChapters = await chaptersController.getUnfinishedChapters(
-      article.id
+    console.info(
+      "Table of content for artilce has been generated: ",
+      chaptersGeneratedByGPT
     );
-    const articleChaptersSummary =
-      await chaptersController.getChaptersSummaryByArticleId(article.id);
-    const previousChaptersSummary = [
-      ...articleChaptersSummary.map((item) => item.summary),
-    ];
-
-    for (let i = 0; i < unfinishedChapters.length; i++) {
-      const unfinishedChapter = unfinishedChapters[i];
-      const chapterData = await gptConnector.generateChapterContentAndSummary({
-        chapterTitle: unfinishedChapter.title,
-        articleTitle: userInput,
-        previousChaptersSummary: previousChaptersSummary,
-      });
-
-      previousChaptersSummary.push(chapterData.summary);
-
-      await chaptersController.addChapterContentAndSummary(
-        unfinishedChapter.id,
-        chapterData.content,
-        chapterData.summary
-      );
-      console.info(`Chapter (${i + 1} / ${unfinishedChapters.length})`);
-    }
-
-    await articleController.finishArticle(article.id);
+    console.info("Chapter added to database");
+    await articleController.createContentForArticle(article.id);
 
     console.log("Success!");
   } catch (error) {
