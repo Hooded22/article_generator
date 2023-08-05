@@ -25,5 +25,5 @@ model Chapter {
   summary   String  @default("")
   status    Int     @default(0)
   articleId Int
-  article   Article @relation(fields: [articleId], references: [id])
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
 }

@@ -26,6 +26,14 @@ export class ArticleController {
     });
   }
 
+  public async getAllArticles() {
+    return this.articleRepository.findMany();
+  }
+
+  public async deleteArticleById(articleID: Article["id"]) {
+    return this.articleRepository.delete({ where: { id: articleID } });
+  }
+
   public async createNewArticle(title: Article["title"]) {
     return this.articleRepository.create({
       data: {
