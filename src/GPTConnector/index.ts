@@ -19,7 +19,7 @@ export class GPTConnector {
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
-        model: params?.model || Models.GPT_TURBO,
+        model: params?.model || Models.GTP_TURBO_16k,
         temperature: 0.7,
         max_tokens: 2000,
         ...params,
@@ -88,6 +88,7 @@ export class GPTConnector {
     previousChaptersSummary,
     maxCharactersNumber = 2000,
   }: GenerateChapterContentAndSummaryPayload) {
+    console.log("generateChapterContentAndSummary");
     const prompt = getGenerateContentPrompt(
       articleTitle,
       previousChaptersSummary,

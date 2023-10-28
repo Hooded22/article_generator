@@ -43,17 +43,13 @@ export class ArticleController {
     });
   }
 
-  public async addTableOfContentToArticle(
+  public addTableOfContentToArticle(
     articleId: Article["id"],
     chapterTitleArray: string[]
   ) {
-    const inserts: any[] = [];
-    chapterTitleArray.forEach((title) => {
-      inserts.push(
-        this.chapterRepository.create({ data: { title, articleId } })
-      );
-    });
-
+    const inserts = chapterTitleArray.map((title) =>
+      this.chapterRepository.create({ data: { title, articleId } })
+    );
     return prisma.$transaction(inserts);
   }
 
@@ -110,6 +106,7 @@ export class ArticleController {
       );
 
       const unfinishedChapter = unfinishedChapters[i];
+
       const chapterData = await gptConnector.generateChapterContentAndSummary({
         chapterTitle: unfinishedChapter.title,
         articleTitle: articleData.title,
